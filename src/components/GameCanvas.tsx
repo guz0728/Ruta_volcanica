@@ -8,6 +8,7 @@ interface GameCanvasProps {
 export default function GameCanvas({ onGameOver, isFrozen }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isFrozenRef = useRef(isFrozen);
+  const keysRef = useRef({ w: false, a: false, s: false, d: false });
 
   useEffect(() => {
     isFrozenRef.current = isFrozen;
@@ -49,7 +50,7 @@ export default function GameCanvas({ onGameOver, isFrozen }: GameCanvasProps) {
     };
 
     // Controles
-    const keys = { w: false, a: false, s: false, d: false };
+    const keys = keysRef.current;
 
     // Entidades
     let entities: any[] = [];
@@ -654,12 +655,47 @@ export default function GameCanvas({ onGameOver, isFrozen }: GameCanvasProps) {
     };
   }, [onGameOver]);
 
+  const handleControl = (key: 'w'|'a'|'s'|'d', isDown: boolean) => (e: React.SyntheticEvent) => {
+    if (e.type.startsWith('touch') && e.cancelable) {
+      e.preventDefault();
+    }
+    keysRef.current[key] = isDown;
+  };
+
   return (
-    <canvas 
-      ref={canvasRef} 
-      width={600} 
-      height={800} 
-      className="border-4 border-red-900 rounded-lg shadow-[0_0_40px_rgba(255,0,0,0.6)] max-w-full max-h-[90vh] object-contain"
-    />
+    <div className="relative flex justify-center items-center w-full max-w-[600px] mx-auto">
+      <canvas 
+        ref={canvasRef} 
+        width={600} 
+        height={800} 
+        className="border-4 border-red-900 rounded-lg shadow-[0_0_40px_rgba(255,0,0,0.6)] max-w-full max-h-[100dvh] object-contain bg-black"
+      />
+      
+      {/* Controles Táctiles (Visibles en pantallas pequeñas) */}
+      <div className="absolute bottom-6 left-2 flex gap-2 md:hidden z-50">
+        <button 
+          className="w-14 h-14 bg-gray-900/80 border-2 border-gray-500 rounded-full text-white text-2xl flex items-center justify-center active:bg-gray-700 select-none touch-none"
+          onTouchStart={handleControl('a', true)} onTouchEnd={handleControl('a', false)}
+          onMouseDown={handleControl('a', true)} onMouseUp={handleControl('a', false)} onMouseLeave={handleControl('a', false)}
+        >◀</button>
+        <button 
+          className="w-14 h-14 bg-gray-900/80 border-2 border-gray-500 rounded-full text-white text-2xl flex items-center justify-center active:bg-gray-700 select-none touch-none"
+          onTouchStart={handleControl('d', true)} onTouchEnd={handleControl('d', false)}
+          onMouseDown={handleControl('d', true)} onMouseUp={handleControl('d', false)} onMouseLeave={handleControl('d', false)}
+        >▶</button>
+      </div>
+      <div className="absolute bottom-6 right-2 flex flex-col gap-2 md:hidden z-50">
+        <button 
+          className="w-14 h-14 bg-gray-900/80 border-2 border-gray-500 rounded-full text-white text-2xl flex items-center justify-center active:bg-gray-700 select-none touch-none"
+          onTouchStart={handleControl('w', true)} onTouchEnd={handleControl('w', false)}
+          onMouseDown={handleControl('w', true)} onMouseUp={handleControl('w', false)} onMouseLeave={handleControl('w', false)}
+        >▲</button>
+        <button 
+          className="w-14 h-14 bg-gray-900/80 border-2 border-gray-500 rounded-full text-white text-2xl flex items-center justify-center active:bg-gray-700 select-none touch-none"
+          onTouchStart={handleControl('s', true)} onTouchEnd={handleControl('s', false)}
+          onMouseDown={handleControl('s', true)} onMouseUp={handleControl('s', false)} onMouseLeave={handleControl('s', false)}
+        >▼</button>
+      </div>
+    </div>
   );
 }
