@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import GameCanvas from './components/GameCanvas';
 
 type GameState = 'START' | 'INTRO' | 'PLAYING' | 'GAME_OVER';
@@ -11,6 +11,7 @@ type GameState = 'START' | 'INTRO' | 'PLAYING' | 'GAME_OVER';
 export default function App() {
   const [gameState, setGameState] = useState<GameState>('START');
   const [gameId, setGameId] = useState(0);
+  const lastTapRef = useRef<number>(0);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -18,24 +19,30 @@ export default function App() {
         console.log(`Error attempting to enable fullscreen: ${err.message}`);
       });
     } else {
-      document.exitFullscreen();
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
     }
   };
+
+  const handleTap = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      toggleFullScreen();
+    }
+    lastTapRef.current = now;
+  };
+
   const [score, setScore] = useState(0);
   const [isWin, setIsWin] = useState(false);
   const [finalLives, setFinalLives] = useState(0);
   const [finalFuel, setFinalFuel] = useState(0);
 
   return (
-    <div className="min-h-screen bg-black text-orange-500 font-mono flex flex-col items-center justify-center overflow-hidden relative">
-      <button 
-        onClick={toggleFullScreen} 
-        className="absolute top-4 right-4 z-50 p-3 bg-gray-900/80 hover:bg-gray-800 text-white rounded-full border-2 border-gray-700 shadow-lg transition-colors"
-        title="Pantalla Completa"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-      </button>
-
+    <div 
+      className="min-h-screen bg-black text-orange-500 font-mono flex flex-col items-center justify-center overflow-hidden relative select-none"
+      onClick={handleTap}
+    >
       {gameState === 'START' && (
         <div className="text-center">
           <h1 className="text-6xl font-bold text-red-600 mb-4 drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]">RUTA VOLCÁNICA</h1>
