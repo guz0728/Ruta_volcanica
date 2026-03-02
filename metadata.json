@@ -1,0 +1,5 @@
+{
+  "name": "Ruta Volcánica",
+  "description": "Un juego arcade 2D inspirado en Road Fighter donde debes escapar de un volcán en erupción.",
+  "requestFramePermissions": []
+}
